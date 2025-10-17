@@ -1,0 +1,28 @@
+{
+  "name": "MAXIRENT - Gestión de Taller",
+  "short_name": "MAXIRENT",
+  "description": "Sistema de gestión de taller para MAXIRENT - Control de vehículos, rampas y mantenimiento",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#171820",
+  "theme_color": "#df861d",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "lang": "es-MX",
+  "dir": "ltr"
+}
