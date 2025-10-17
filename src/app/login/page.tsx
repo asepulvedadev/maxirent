@@ -3,12 +3,13 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/stores/auth-store'
+import { DEMO_USERS, validateDemoCredentials, getUserProfileInfo, type DemoUser } from '@/lib/demo-users'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, Phone, User, Eye, EyeOff } from 'lucide-react'
+import { Loader2, Phone, User, Eye, EyeOff, Users, ChevronDown } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -22,6 +23,10 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loginError, setLoginError] = useState('')
   const [isLoggingIn, setIsLoggingIn] = useState(false)
+
+  // Estados para selector de usuarios demo
+  const [showUserSelector, setShowUserSelector] = useState(false)
+  const [selectedDemoUser, setSelectedDemoUser] = useState<DemoUser | null>(null)
 
   // Estados para login con teléfono
   const [phoneData, setPhoneData] = useState({
@@ -63,6 +68,29 @@ export default function LoginPage() {
     setIsLoggingIn(true)
 
     try {
+      // Primero intentar con usuarios demo
+      const demoUser = validateDemoCredentials(credentials.identifier, credentials.password)
+
+      if (demoUser) {
+        // Simular login exitoso con usuario demo
+        // En producción esto se haría con Supabase
+        const mockUser = {
+          ...demoUser,
+          email: demoUser.email,
+        }
+
+        // Simular login exitoso
+        setTimeout(() => {
+          // Guardar en localStorage para simular sesión
+          localStorage.setItem('maxirent-demo-user', JSON.stringify(mockUser))
+          router.push('/dashboard')
+          setIsLoggingIn(false)
+        }, 1000)
+
+        return
+      }
+
+      // Si no es usuario demo, intentar con Supabase
       const { success, error } = await signIn(credentials)
 
       if (success) {
@@ -127,12 +155,71 @@ export default function LoginPage() {
           <p className="text-slate-400">Sistema de Gestión de Taller</p>
         </div>
 
+        {/* Selector de usuarios demo */}
+        <div className="mb-6">
+          <Button
+            onClick={() => setShowUserSelector(!showUserSelector)}
+            variant="outline"
+            className="w-full border-slate-600 text-slate-300 hover:bg-slate-700 mb-4"
+          >
+            <Users className="w-4 h-4 mr-2" />
+            Usuarios de Demostración
+            <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${showUserSelector ? 'rotate-180' : ''}`} />
+          </Button>
+
+          {showUserSelector && (
+            <Card className="bg-slate-800/50 border-slate-700 mb-4">
+              <CardContent className="p-4">
+                <div className="grid gap-2">
+                  {DEMO_USERS.map((user) => {
+                    const profileInfo = getUserProfileInfo(user)
+                    return (
+                      <button
+                        key={user.id}
+                        onClick={() => {
+                          setSelectedDemoUser(user)
+                          setCredentials({
+                            identifier: user.username,
+                            password: user.password,
+                          })
+                          setShowUserSelector(false)
+                        }}
+                        className="flex items-center justify-between p-3 rounded-lg border border-slate-600 hover:bg-slate-700 transition-colors text-left"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`w-3 h-3 rounded-full ${profileInfo.roleColor}`} />
+                          <div>
+                            <div className="text-white font-medium">{user.full_name}</div>
+                            <div className="text-slate-400 text-sm">{profileInfo.roleDisplay}</div>
+                          </div>
+                        </div>
+                        <div className="text-slate-500 text-sm">
+                          {user.username}
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+                <div className="mt-4 p-3 bg-slate-900/50 rounded-lg">
+                  <p className="text-slate-400 text-sm">
+                    <strong>Nota:</strong> Las contraseñas de demo son visibles para facilitar las pruebas.
+                    En producción, usa el sistema de autenticación completo.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
         {/* Formulario de login */}
         <Card className="bg-slate-800/50 border-slate-700">
           <CardHeader>
             <CardTitle className="text-white text-center">Iniciar Sesión</CardTitle>
             <CardDescription className="text-center text-slate-400">
-              Accede a tu cuenta para continuar
+              {selectedDemoUser
+                ? `Usuario seleccionado: ${selectedDemoUser.full_name} (${getUserProfileInfo(selectedDemoUser).roleDisplay})`
+                : 'Accede a tu cuenta para continuar'
+              }
             </CardDescription>
           </CardHeader>
           <CardContent>
