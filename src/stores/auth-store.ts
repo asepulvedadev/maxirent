@@ -1,6 +1,7 @@
 // Store de Zustand para gestión de estado de autenticación
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { createClient } from '@/lib/supabase'
 import { authService, type AuthUser } from '@/lib/auth'
 
 interface AuthState {
@@ -35,20 +36,48 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true })
 
         try {
-          const { user, error } = await authService.signIn(credentials)
+          const supabase = createClient()
+
+          // Intentar login con email/usuario y contraseña
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email: credentials.identifier.includes('@') ? credentials.identifier : `${credentials.identifier}@maxirent.local`,
+            password: credentials.password,
+          })
 
           if (error) {
             set({ isLoading: false })
-            return { success: false, error: error.message }
+            return { success: false, error: 'Credenciales inválidas' }
           }
 
-          set({
-            user,
-            isAuthenticated: true,
-            isLoading: false,
-          })
+          if (data.user) {
+            // Obtener perfil completo
+            const { data: profile, error: profileError } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', data.user.id)
+              .single()
 
-          return { success: true }
+            if (profileError || !profile) {
+              set({ isLoading: false })
+              return { success: false, error: 'Perfil no encontrado' }
+            }
+
+            const user: AuthUser = {
+              ...profile,
+              email: data.user.email
+            }
+
+            set({
+              user,
+              isAuthenticated: true,
+              isLoading: false,
+            })
+
+            return { success: true }
+          }
+
+          set({ isLoading: false })
+          return { success: false, error: 'Error desconocido' }
         } catch (error) {
           set({ isLoading: false })
           return {
@@ -63,11 +92,14 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true })
 
         try {
-          const { error } = await authService.signInWithPhone(phone)
+          const supabase = createClient()
+          const { error } = await supabase.auth.signInWithOtp({
+            phone: phone.startsWith('+') ? phone : `+52${phone}`,
+          })
 
           if (error) {
             set({ isLoading: false })
-            return { success: false, error: error.message }
+            return { success: false, error: 'Error al enviar código' }
           }
 
           set({ isLoading: false })
@@ -86,11 +118,33 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true })
 
         try {
-          const { user, error } = await authService.verifyOtp(phone, token)
+          const supabase = createClient()
+          const { data, error } = await supabase.auth.verifyOtp({
+            phone: phone.startsWith('+') ? phone : `+52${phone}`,
+            token,
+            type: 'sms',
+          })
 
-          if (error) {
+          if (error || !data.user) {
             set({ isLoading: false })
-            return { success: false, error: error.message }
+            return { success: false, error: 'Código inválido' }
+          }
+
+          // Obtener perfil completo
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', data.user.id)
+            .single()
+
+          if (profileError || !profile) {
+            set({ isLoading: false })
+            return { success: false, error: 'Perfil no encontrado' }
+          }
+
+          const user: AuthUser = {
+            ...profile,
+            email: data.user.email
           }
 
           set({
@@ -114,7 +168,8 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true })
 
         try {
-          await authService.signOut()
+          const supabase = createClient()
+          await supabase.auth.signOut()
 
           set({
             user: null,
@@ -159,13 +214,41 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true })
 
         try {
-          const user = await authService.getCurrentUser()
+          const supabase = createClient()
+          const { data: { session } } = await supabase.auth.getSession()
 
-          set({
-            user,
-            isAuthenticated: !!user,
-            isLoading: false,
-          })
+          if (session?.user) {
+            // Obtener perfil completo
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single()
+
+            if (profile) {
+              const user: AuthUser = {
+                ...profile,
+                email: session.user.email
+              }
+              set({
+                user,
+                isAuthenticated: true,
+                isLoading: false,
+              })
+            } else {
+              set({
+                user: null,
+                isAuthenticated: false,
+                isLoading: false,
+              })
+            }
+          } else {
+            set({
+              user: null,
+              isAuthenticated: false,
+              isLoading: false,
+            })
+          }
         } catch (error) {
           console.error('Error al inicializar auth:', error)
           set({
@@ -205,6 +288,34 @@ export function useAuthInit() {
   const isLoading = useAuthStore((state) => state.isLoading)
 
   return { initialize, isLoading }
+}
+
+// Initialize auth store on app start
+if (typeof window !== 'undefined') {
+  useAuthStore.getState().initialize()
+
+  // Listen for auth changes
+  const supabase = createClient()
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session?.user) {
+      // Obtener perfil completo
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single()
+
+      if (profile) {
+        const user: AuthUser = {
+          ...profile,
+          email: session.user.email
+        }
+        useAuthStore.setState({ user, isAuthenticated: true })
+      }
+    } else if (event === 'SIGNED_OUT') {
+      useAuthStore.setState({ user: null, isAuthenticated: false })
+    }
+  })
 }
 
 // Hook para obtener información del usuario actual

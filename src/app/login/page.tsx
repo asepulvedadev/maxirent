@@ -68,29 +68,7 @@ export default function LoginPage() {
     setIsLoggingIn(true)
 
     try {
-      // Primero intentar con usuarios demo
-      const demoUser = validateDemoCredentials(credentials.identifier, credentials.password)
-
-      if (demoUser) {
-        // Simular login exitoso con usuario demo
-        // En producción esto se haría con Supabase
-        const mockUser = {
-          ...demoUser,
-          email: demoUser.email,
-        }
-
-        // Simular login exitoso
-        setTimeout(() => {
-          // Guardar en localStorage para simular sesión
-          localStorage.setItem('maxirent-demo-user', JSON.stringify(mockUser))
-          router.push('/dashboard')
-          setIsLoggingIn(false)
-        }, 1000)
-
-        return
-      }
-
-      // Si no es usuario demo, intentar con Supabase
+      // Intentar login con Supabase (ahora es el método principal)
       const { success, error } = await signIn(credentials)
 
       if (success) {
@@ -184,7 +162,7 @@ export default function LoginPage() {
                           })
                           setShowUserSelector(false)
                         }}
-                        className="flex items-center justify-between p-3 rounded-lg border border-slate-600 hover:bg-slate-700 transition-colors text-left"
+                        className="flex items-center justify-between p-3 rounded-lg border border-slate-600 hover:bg-slate-700 transition-colors text-left w-full"
                       >
                         <div className="flex items-center gap-3">
                           <div className={`w-3 h-3 rounded-full ${profileInfo.roleColor}`} />
@@ -202,8 +180,8 @@ export default function LoginPage() {
                 </div>
                 <div className="mt-4 p-3 bg-slate-900/50 rounded-lg">
                   <p className="text-slate-400 text-sm">
-                    <strong>Nota:</strong> Las contraseñas de demo son visibles para facilitar las pruebas.
-                    En producción, usa el sistema de autenticación completo.
+                    <strong>Nota:</strong> Usuarios de demostración para testing.
+                    Las contraseñas están visibles para facilitar las pruebas.
                   </p>
                 </div>
               </CardContent>
