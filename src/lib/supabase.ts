@@ -383,7 +383,7 @@ export type Database = {
           message?: string
           status?: 'PENDIENTE' | 'LEIDA' | 'ATENDIDA'
           related_vehicle_entry_id?: string | null
-          metadata?: Record<string, any> | null
+          metadata?: Record<string, unknown> | null
           read_at?: string | null
           attended_at?: string | null
           created_at?: string

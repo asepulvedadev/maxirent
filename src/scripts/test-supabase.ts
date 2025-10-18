@@ -14,7 +14,7 @@ async function testSupabaseConnection() {
   try {
     // 1. Probar conexión básica
     console.log('\n1️⃣ Probando conexión básica...')
-    const { data: _connectionTest, error: connectionError } = await supabase
+    const { error: connectionError } = await supabase
       .from('profiles')
       .select('*', { count: 'exact', head: true })
 
@@ -63,7 +63,7 @@ async function testSupabaseConnection() {
 
     // 4. Verificar RLS
     console.log('\n4️⃣ Verificando Row Level Security...')
-    const { data: _rlsTest, error: rlsError } = await supabase
+    const { error: rlsError } = await supabase
       .from('profiles')
       .select('username, role')
       .limit(1)
@@ -90,7 +90,7 @@ async function testSupabaseConnection() {
         } else {
           console.log(`   ✅ ${table}: ${count || 0} registros`)
         }
-      } catch (_error) {
+      } catch {
         console.log(`   ❌ ${table}: Error de conexión`)
       }
     }
