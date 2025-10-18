@@ -353,7 +353,7 @@ export type Database = {
           message: string
           status: 'PENDIENTE' | 'LEIDA' | 'ATENDIDA'
           related_vehicle_entry_id: string | null
-          metadata: Record<string, any> | null
+          metadata: Record<string, unknown> | null
           read_at: string | null
           attended_at: string | null
           created_at: string
@@ -368,7 +368,7 @@ export type Database = {
           message: string
           status?: 'PENDIENTE' | 'LEIDA' | 'ATENDIDA'
           related_vehicle_entry_id?: string | null
-          metadata?: Record<string, any> | null
+          metadata?: Record<string, unknown> | null
           read_at?: string | null
           attended_at?: string | null
           created_at?: string
@@ -397,8 +397,8 @@ export type Database = {
           action: string
           entity_type: string
           entity_id: string | null
-          old_values: Record<string, any> | null
-          new_values: Record<string, any> | null
+          old_values: Record<string, unknown> | null
+          new_values: Record<string, unknown> | null
           ip_address: string | null
           user_agent: string | null
           created_at: string
@@ -409,8 +409,8 @@ export type Database = {
           action: string
           entity_type: string
           entity_id?: string | null
-          old_values?: Record<string, any> | null
-          new_values?: Record<string, any> | null
+          old_values?: Record<string, unknown> | null
+          new_values?: Record<string, unknown> | null
           ip_address?: string | null
           user_agent?: string | null
           created_at?: string
@@ -421,8 +421,8 @@ export type Database = {
           action?: string
           entity_type?: string
           entity_id?: string | null
-          old_values?: Record<string, any> | null
-          new_values?: Record<string, any> | null
+          old_values?: Record<string, unknown> | null
+          new_values?: Record<string, unknown> | null
           ip_address?: string | null
           user_agent?: string | null
           created_at?: string

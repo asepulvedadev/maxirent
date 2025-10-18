@@ -2,8 +2,8 @@
 import { createClient } from '@supabase/supabase-js'
 
 // Configuración de Supabase
-const supabaseUrl = process.env.MAXIRENT_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://nlornrbzuggbkujfvajl.supabase.co'
-const supabaseAnonKey = process.env.MAXIRENT_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sb3JucmJ6dWdnYmt1amZ2YWpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2OTQwMzMsImV4cCI6MjA3NjI3MDAzM30.YxAmJeRsReaHXXNTGjuWBV8WZpWtw-Eefa8OP1LC7YI'
+const supabaseUrl = process.env.MAXIRENT_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || 'SUPABASE_URL_PLACEHOLDER'
+const supabaseAnonKey = process.env.MAXIRENT_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'SUPABASE_ANON_KEY_PLACEHOLDER'
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
@@ -14,7 +14,7 @@ async function testSupabaseConnection() {
   try {
     // 1. Probar conexión básica
     console.log('\n1️⃣ Probando conexión básica...')
-    const { data: connectionTest, error: connectionError } = await supabase
+    const { data: _connectionTest, error: connectionError } = await supabase
       .from('profiles')
       .select('*', { count: 'exact', head: true })
 
@@ -63,7 +63,7 @@ async function testSupabaseConnection() {
 
     // 4. Verificar RLS
     console.log('\n4️⃣ Verificando Row Level Security...')
-    const { data: rlsTest, error: rlsError } = await supabase
+    const { data: _rlsTest, error: rlsError } = await supabase
       .from('profiles')
       .select('username, role')
       .limit(1)
@@ -90,7 +90,7 @@ async function testSupabaseConnection() {
         } else {
           console.log(`   ✅ ${table}: ${count || 0} registros`)
         }
-      } catch (error) {
+      } catch (_error) {
         console.log(`   ❌ ${table}: Error de conexión`)
       }
     }
