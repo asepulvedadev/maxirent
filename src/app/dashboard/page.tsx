@@ -60,10 +60,10 @@ export default function DashboardPage() {
   // Función helper para crear perfil info compatible
   const getProfileInfo = (user: { role: string; full_name: string; employee_id: string | null }) => {
     return getUserProfileInfo({
-      role: user.role,
+      role: user.role as 'ADMIN' | 'JEFE_TALLER' | 'ALMACENISTA' | 'RECEPCIONISTA' | 'MECANICO',
       full_name: user.full_name,
       employee_id: user.employee_id
-    })
+    } as any)
   }
 
   if (isLoading) {
