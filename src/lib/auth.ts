@@ -71,7 +71,7 @@ export class AuthService {
   // Verificar OTP
   async verifyOtp(phone: string, token: string) {
     try {
-      const { data: _data, error } = await this.supabase.auth.verifyOtp({
+      const { error } = await this.supabase.auth.verifyOtp({
         phone: phone.startsWith('+') ? phone : `+52${phone}`,
         token,
         type: 'sms',

@@ -15,7 +15,6 @@ import {
   Phone,
   Shield,
   Calendar,
-  MapPin,
   Wrench,
   Edit,
   Save,
@@ -25,7 +24,7 @@ import {
 
 export default function ProfilePage() {
   const router = useRouter()
-  const params = useParams()
+  const _params = useParams()
   const [user, setUser] = useState<DemoUser | null>(null)
   const [loading, setLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)

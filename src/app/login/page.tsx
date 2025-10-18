@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/stores/auth-store'
-import { DEMO_USERS, validateDemoCredentials, getUserProfileInfo, type DemoUser } from '@/lib/demo-users'
+import { DEMO_USERS, getUserProfileInfo, type DemoUser } from '@/lib/demo-users'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -76,7 +76,7 @@ export default function LoginPage() {
       } else {
         setLoginError(error || 'Error al iniciar sesión')
       }
-    } catch (error) {
+    } catch {
       setLoginError('Error inesperado al iniciar sesión')
     } finally {
       setIsLoggingIn(false)
@@ -95,7 +95,7 @@ export default function LoginPage() {
       } else {
         setPhoneError(error || 'Error al enviar código')
       }
-    } catch (error) {
+    } catch {
       setPhoneError('Error inesperado al enviar código')
     } finally {
       setIsSendingOtp(false)
@@ -114,7 +114,7 @@ export default function LoginPage() {
       } else {
         setPhoneError(error || 'Código incorrecto')
       }
-    } catch (error) {
+    } catch {
       setPhoneError('Error al verificar código')
     } finally {
       setIsVerifyingOtp(false)
